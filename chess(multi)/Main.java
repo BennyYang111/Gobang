@@ -93,7 +93,9 @@ public class Main
 		
 		if (in == 0 && log == 1)
 		{	
-			players = conSignIn.conSignIn();
+			if (player == -1) players = conSignIn.conSignIn();
+			else players = 1;
+			
 			int canPlay = 0;
 			
 			if (players == 1)

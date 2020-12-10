@@ -106,7 +106,7 @@ public class ConSignIn extends Main
 			ByteBuffer 	b = ByteBuffer.allocate(1000); 
 			int			len = sc.read(b);
 			
-			while(len == 0)		//&& waitTime <= 5
+			while(len == 0 && waitTime <= 5)		//&& waitTime <= 5
 			{
             	try 
             	{

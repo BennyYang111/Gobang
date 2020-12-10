@@ -549,14 +549,14 @@ public class Server
 						
 						thread1.start();
 						
-						if (localPort == 8888)
+						/*if (localPort == 8888)
 						{
 							try
 							{
 								thread1.join();
 							}
 							catch(InterruptedException e){ }
-						}
+						}*/
 					}
 					catch(Exception e) { }
 				}

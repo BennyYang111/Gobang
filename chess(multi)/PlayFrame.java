@@ -23,11 +23,11 @@ public class PlayFrame
 	
 	//JFrame playFrame;
 	JPanel playPanel;
-	//JFrame playFrame;
 	
 	JLayeredPane playLayeredPane = new JLayeredPane();
 	JLabel Turn = new JLabel();
 	JLabel Blank = new JLabel();
+	JLabel timeOutMsg = new JLabel();
 	JLabel round = new JLabel("回合：1");
 	JLabel whiteMsg = new JLabel();
 	JLabel blackMsg = new JLabel();
@@ -35,7 +35,7 @@ public class PlayFrame
 	JLabel name = new JLabel("玩家:");
 	JLabel playerName = new JLabel();
 	JLabel chess = new JLabel();
-	JButton clean = new JButton("開始");
+	JButton clean = new JButton("再來一把");
 	//JButton back = new JButton("悔棋");
 	JButton logout = new JButton("←");
 	
@@ -73,10 +73,20 @@ public class PlayFrame
 		playPanel.add(whiteMsg);
 		playLayeredPane.add(whiteMsg, JLayeredPane.PALETTE_LAYER);
 		
-		clean.setBounds(435, 10, 120, 50);
+		clean.setBounds(420, 10, 140, 50);
 		clean.setFont(new java.awt.Font("標楷體", 1, 25));
 		//playPanel.add(clean);
 		//playLayeredPane.add(clean, JLayeredPane.PALETTE_LAYER);
+		
+		//ImageIcon white = new ImageIcon(Main.frame.winPath);
+		//Main.frame.whiteMsg.setIcon(white);
+		//ImageIcon black = new ImageIcon(Main.frame.losePath);
+		//Main.frame.blackMsg.setIcon(black);
+		
+		timeOutMsg.setBounds(240, 130, 190, 50);
+		timeOutMsg.setFont(new java.awt.Font("標楷體", 1, 25));
+		playPanel.add(timeOutMsg);
+		playLayeredPane.add(timeOutMsg, JLayeredPane.MODAL_LAYER);
 		
 		//back.setBounds(10, 10, 120, 50);
 		//back.setFont(new java.awt.Font("標楷體", 1, 25));

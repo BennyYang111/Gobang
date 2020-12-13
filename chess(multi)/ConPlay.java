@@ -7,92 +7,6 @@ import java.util.StringTokenizer;
 import javax.swing.ImageIcon;
 import javax.swing.JLayeredPane;
 
-class ThreadClassConPlay extends Thread
-{
-	ConPlay conPlay = new ConPlay();
-	
-	/*public ThreadClass()
-	{
-		
-	}*/
-	public void run()
-	{
-		try
-		{
-			try
-			{
-				SocketChannel sc = SocketChannel.open();
-				sc.configureBlocking(false);
-				sc.connect(new InetSocketAddress("127.0.0.1", 8889));
-				
-		        for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
-		        {
-		            System.out.println("Loop count = " + loopcount);
-		            try 
-		            {
-		                Thread.sleep(1000);
-		            }
-		            catch (InterruptedException e) 
-		            {
-		                System.err.println(e);
-		            }
-		        }
-				
-		        String data = "waitStart";
-		        
-				ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
-				sc.write(buffer);
-		
-				ByteBuffer 	b = ByteBuffer.allocate(1000); 
-				int			len = sc.read(b);
-				
-				while(len == 0)
-				{
-					try 
-					{
-						Thread.sleep(2000);
-					} 
-					catch (InterruptedException e) 
-					{
-						System.err.println(e);
-					}
-					
-					len = sc.read(b);
-					String rev = new String(b.array(), 0, len);
-					
-					if (rev.equals("yes") == true)
-					{
-						//System.out.println("yesyesyesyesyesyesyesyes");
-						conPlay.doSomething(1);
-						//break;
-					}
-					else if (rev.equals("logOut") == true)
-					{
-						//System.out.println("logOutlogOutlogOutlogOutlogOut");
-						conPlay.doSomething(2);
-						//break;
-					}
-					
-					if (len == 0)
-					{
-						buffer = ByteBuffer.wrap(data.getBytes());
-						sc.write(buffer);
-					}
-				}
-				
-				//System.out.println("Receive message : "	+ new String(b.array(), 0, len));
-				
-				sc.close();
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
-		catch(Exception e){ }
-	}
-}
-
 public class ConPlay extends Main
 {
 	//Location local = new Location();
@@ -100,6 +14,8 @@ public class ConPlay extends Main
 	public int[][] playClient(int player, int wait_place, int X, int Y, int[][] win)		//X, Y是滑鼠座標
 	{
 		String placePos = "";
+		String logMsg = "";
+		String tok = "";
 		
 		if (wait_place == 0)
 		{
@@ -112,7 +28,7 @@ public class ConPlay extends Main
 		        for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
 		        {
 		            System.out.println("Loop count = " + loopcount);
-		            try 
+		            try
 		            {
 		                Thread.sleep(1000);
 		            }
@@ -137,7 +53,7 @@ public class ConPlay extends Main
 				{
 					try 
 					{
-						Thread.sleep(1000);
+						Thread.sleep(500);
 					} 
 					catch (InterruptedException e) 
 					{
@@ -191,13 +107,13 @@ public class ConPlay extends Main
 				ImageIcon turn = new ImageIcon(Main.frame.readyPath);
 				Main.frame.Turn.setIcon(turn);
 				
-				if (Main.player == 0)
-				{
+				//if (Main.player == 0)
+				//{
 					Main.frame.playPanel.add(frame.clean);
 					Main.frame.playLayeredPane.add(frame.clean, JLayeredPane.PALETTE_LAYER); 
-				}
+				//}
 				
-				if (Main.player == 1)
+				/*if (Main.player == 1)
 				{
 					try
 					{
@@ -214,7 +130,7 @@ public class ConPlay extends Main
 						//}
 					}
 					catch(Exception er){ }
-				}
+				}*/
 			}
 		}
 		else if (wait_place == 1)
@@ -254,7 +170,7 @@ public class ConPlay extends Main
 				{
 					try 
 					{
-						Thread.sleep(1000);
+						Thread.sleep(500);
 					} 
 					catch (InterruptedException e) 
 					{
@@ -262,6 +178,7 @@ public class ConPlay extends Main
 					}
 					len = sc.read(b);
 					
+					//System.out.println("Receive message : "	+ new String(b.array(), 0, len));
 					if (len == 0)
 					{
 						buffer = ByteBuffer.wrap(data.getBytes());
@@ -270,6 +187,9 @@ public class ConPlay extends Main
 				}
 				//System.out.println("Receive message : "	+ new String(b.array(), 0, len));
 				placePos = new String(b.array(), 0, len);
+				StringTokenizer str = new StringTokenizer(placePos, " ");
+				logMsg = str.nextToken();
+				tok = str.nextToken();
 				
 				sc.close();
 			}
@@ -278,7 +198,10 @@ public class ConPlay extends Main
 				e.printStackTrace();
 			}
 			
-			if (placePos.equals("logout") != true)
+			//System.out.println("logMsg : "	+ logMsg);
+			//System.out.println("tok : "	+ tok);
+			
+			if (logMsg.equals("logout") != true)
 			{
 				//System.out.println("place position:: " + placePos);
 				
@@ -329,12 +252,12 @@ public class ConPlay extends Main
 					ImageIcon turn = new ImageIcon(Main.frame.readyPath);
 					Main.frame.Turn.setIcon(turn);
 					
-					if (Main.player == 0)
-					{
+					//if (Main.player == 0)
+					//{
 						Main.frame.playPanel.add(frame.clean);
 						Main.frame.playLayeredPane.add(frame.clean, JLayeredPane.PALETTE_LAYER);
-					}
-					else if (Main.player == 1)
+					//}
+					/*else if (Main.player == 1)
 					{
 						try
 						{
@@ -351,12 +274,18 @@ public class ConPlay extends Main
 							//}
 						}
 						catch(Exception er){ }
-					}
+					}*/
 				}
 			}
-			else
+			else if ((tok.equals("Wplayer1") == true && Main.player == 1) || tok.equals("Wplayer2") == true && Main.player == 0)
 			{
-				Main.frame.logout.doClick();
+				//System.out.println("??????tok::: " + tok);
+				//Main.msg.restartMsg.setText(Main.playName + "已經登出!!");
+				//Main.msg.msgPanel.add(msg.restartMsg);
+				//Main.msg.msgLayeredPane.add(msg.restartMsg, JLayeredPane.PALETTE_LAYER);
+				
+				Main.msg.Info();
+				//Main.frame.logout.doClick();
 			}
 		}
 		return win;
@@ -365,6 +294,7 @@ public class ConPlay extends Main
 	public static int restart()
 	{
 		int wantLogout = 0;
+		int waitTime = 0;
 		
 		try
 		{
@@ -395,17 +325,39 @@ public class ConPlay extends Main
 				ByteBuffer 	b = ByteBuffer.allocate(1000); 
 				int			len = sc.read(b);
 				
-				while(len == 0)
+				while(len == 0 && waitTime <= 4)
 				{
 					try 
 					{
-						Thread.sleep(2000);
+						Thread.sleep(1000);
 					} 
 					catch (InterruptedException e) 
 					{
 						System.err.println(e);
 					}
+					
+					waitTime++;
 					len = sc.read(b);
+					String rev = new String(b.array(), 0, len);
+					//System.out.println("rev::: " + rev);
+					if (rev.equals("yes") == true)
+					{
+						//System.out.println("yesyesyesyesyesyesyesyes");
+						doSomething(1);
+						//break;
+					}
+					else if (rev.equals("logOut") == true)
+					{
+						//System.out.println("logOutlogOutlogOutlogOutlogOut");
+						doSomething(2);
+						//break;
+					}
+					
+					if (len == 0)
+					{
+						buffer = ByteBuffer.wrap(data.getBytes());
+						sc.write(buffer);
+					}
 				}
 				
 				//System.out.println("Receive message : "	+ new String(b.array(), 0, len));
@@ -413,6 +365,10 @@ public class ConPlay extends Main
 				if ((new String(b.array(), 0, len)).equals("logOut"))
 				{
 					wantLogout = 1;
+				}
+				if ((new String(b.array(), 0, len)).equals(""))
+				{
+					wantLogout = 2;
 				}
 				
 				sc.close();
@@ -431,13 +387,15 @@ public class ConPlay extends Main
 	{
 		if (choose == 1)
 		{
-			Main.msg.yes.doClick();
-			//Main.local.clean();
-			//Main.Start();
+			//Main.msg.yes.doClick();
+			Main.frame.timeOutMsg.setText("");
+			Main.local.clean();
+			Main.Start();
 		}
 		else if (choose == 2)
 		{
-			Main.frame.logout.doClick();
+			Main.msg.Info();
+			//Main.frame.logout.doClick();
 		}
 	}
 }

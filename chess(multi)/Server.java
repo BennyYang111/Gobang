@@ -52,7 +52,7 @@ class ThreadBySubclass extends Thread
 				StringTokenizer str = new StringTokenizer(playerPosition, " ");
 				String player = str.nextToken();
 				
-				if ((new String(b.array(), 0, len)).equals("signIn") == true || (new String(b.array(), 0, len)).equals("wait") == true || (new String(b.array(), 0, len)).equals("waitTimeOut") == true || (new String(b.array(), 0, len)).equals("logOut") == true || player.equals("logOutNoPlay") == true)
+				if (player.equals("signIn") == true || player.equals("wait") == true || player.equals("waitTimeOut") == true || player.equals("logOut") == true || player.equals("logOutNoPlay") == true || player.equals("lobbyWaitTimeOut") == true)
 				{
 					localPort = 8886;
 				}
@@ -64,7 +64,7 @@ class ThreadBySubclass extends Thread
 				{
 					localPort = 8888;
 				}
-				else if (player.equals("SELECT") == true || player.equals("right") == true || player.equals("waitStart") == true || player.equals("wantStart") == true)
+				else if (player.equals("SELECT") == true || player.equals("right") == true || player.equals("waitStart") == true || player.equals("wantStart") == true || player.equals("timeOut") == true)
 				{
 					localPort = 8885;
 				}
@@ -80,6 +80,7 @@ class ThreadBySubclass extends Thread
 				{
 					//System.out.println("port: " + localPort);
 					System.out.println("msg: " + new String(b.array(), 0, len));
+					//System.out.println("size: " + queue.size());
 					//System.out.println("player: " + player);
 					
 					if (localPort == 8889)
@@ -110,7 +111,7 @@ class ThreadBySubclass extends Thread
 					{
 						if (queue.size() < 2)
 						{
-							data = "logout";
+							data = "logout " + player;
 							ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
 							sc.write(buffer);
 							break;
@@ -220,35 +221,65 @@ class ThreadBySubclass extends Thread
 						}
 						else if (player.equals("waitStart") == true)
 						{
-							pos.set(0, "Wplayer1");
-					    	pos.set(1, "0 0");
-							String waitStart = pos.get(2);
+							//System.out.println("White pos[2] === " + pos.get(2));
+							//System.out.println("White pos[3] === " + pos.get(3));
 							
-							//System.out.println("pos[2] === " + pos.get(2));
-							
-							if (waitStart.equals("yes") == true)
+							if (pos.get(3).equals("noWait") == true || pos.get(3).equals("whiteWaitBlack") == true)
 							{
-								//waitStart = pos.get(2);
-								pos.set(2, "no");
-								data = waitStart;
-								ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
-								sc.write(buffer);
-								break;
+								pos.set(0, "Wplayer1");
+						    	pos.set(1, "0 0");
+						    	pos.set(3, "whiteWaitBlack");
+						    	//System.out.println("Whiteasdasdasd pos[3] === " + pos.get(3));
+								String waitStart = pos.get(2);
+								
+								//System.out.println("pos[2] === " + pos.get(2));
+								
+								if (waitStart.equals("yes") == true)
+								{
+									//waitStart = pos.get(2);
+									pos.set(2, "no");
+									pos.set(3, "noWait");
+									data = waitStart;
+									ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+									sc.write(buffer);
+									break;
+								}
+								
+								if (waitStart.equals("logOut") == true || queue.size() < 2)
+								{
+									//waitStart = pos.get(2);
+									pos.set(2, "no");
+									pos.set(3, "noWait");
+									data = "logOut";
+									ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+									sc.write(buffer);
+									break;
+								}
+								
+								if (pos.get(2).equals("no") == true)
+								{
+									data = "";
+									ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+									sc.write(buffer);
+									break;
+								}
 							}
-							
-							if (waitStart.equals("logOut") == true)
-							{
-								//waitStart = pos.get(2);
-								pos.set(2, "no");
-								data = waitStart;
-								ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
-								sc.write(buffer);
-								break;
-							}
-							
-							if (pos.get(2).equals("no") == true)
-							{
-								data = "";
+							else if (pos.get(3).equals("blackWaitWhite") == true)
+							{								
+								pos.set(0, "Wplayer1");
+								pos.set(1, "0 0");
+								
+								if (queue.size() == 2)
+								{
+									pos.set(2, "yes");
+									data = "yes";
+								}
+								else if (queue.size() < 2)
+								{
+									pos.set(2, "no");
+									data = "logOut";
+								}
+								
 								ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
 								sc.write(buffer);
 								break;
@@ -256,20 +287,69 @@ class ThreadBySubclass extends Thread
 						}
 						else if (player.equals("wantStart") == true)
 						{
-							if (queue.size() == 2)
-							{
-								pos.set(2, "yes");
-								data = "wantStartGo";
-							}
-							else if (queue.size() < 2)
-							{
-								pos.set(2, "no");
-								data = "logOut";
-							}
+							//System.out.println("Black pos[2] === " + pos.get(2));
+							//System.out.println("Black pos[3] === " + pos.get(3));
 							
-							ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
-							sc.write(buffer);
-							break;
+							if (pos.get(3).equals("noWait") == true || pos.get(3).equals("blackWaitWhite") == true)
+							{
+								pos.set(0, "Wplayer1");
+						    	pos.set(1, "0 0");
+						    	pos.set(3, "blackWaitWhite");
+								String waitStart = pos.get(2);
+								
+								//System.out.println("pos[2] === " + pos.get(2));
+								
+								if (waitStart.equals("yes") == true)
+								{
+									//waitStart = pos.get(2);
+									pos.set(2, "no");
+									pos.set(3, "noWait");
+									data = waitStart;
+									ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+									sc.write(buffer);
+									break;
+								}
+								
+								if (waitStart.equals("logOut") == true || queue.size() < 2)
+								{
+									//waitStart = pos.get(2);
+									pos.set(2, "no");
+									pos.set(3, "noWait");
+									data = "logOut";
+									ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+									sc.write(buffer);
+									break;
+								}
+								
+								if (pos.get(2).equals("no") == true)
+								{
+									data = "";
+									ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+									sc.write(buffer);
+									break;
+								}
+							}
+							else if (pos.get(3).equals("whiteWaitBlack") == true)
+							{
+								if (queue.size() == 2)
+								{
+									pos.set(2, "yes");
+									data = "yes";
+								}
+								else if (queue.size() < 2)
+								{
+									pos.set(2, "no");
+									data = "logOut";
+								}
+								
+								ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+								sc.write(buffer);
+								break;
+							}
+						}
+						else if (player.equals("timeOut") == true)
+						{
+							pos.set(3, "noWait");
 						}
 					}
 					
@@ -283,7 +363,7 @@ class ThreadBySubclass extends Thread
 						String pass = st.nextToken();
 						String Sql = "INSERT INTO Gobang (account, password) VALUES (\'" + acc + "\', \'" + AES.encrypt(pass) + "\')";
 						
-						try 
+						try
 						{
 							Class c = Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver"); 
 							String url = "jdbc:sqlserver://LAPTOP-5FC3MHVF\\LYRICS:1433;databaseName=master;user=user;password=user";
@@ -340,7 +420,8 @@ class ThreadBySubclass extends Thread
 					{
 						int success = 0;
 						getdata = new String(b.array(), 0, len);
-						
+						//System.out.println("getdata: " + getdata);
+                        
 						if (getdata.equals("signIn") == true)
 						{
 							if (queue.size() < 2)
@@ -394,9 +475,14 @@ class ThreadBySubclass extends Thread
 								break;
 							}
 						}
-						else if (getdata.equals("waitTimeOut") == true)
+						else if (getdata.equals("lobbyWaitTimeOut") == true && queue.size() < 2)
 						{
+							queue.poll();
+                            data = "";
+                            ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+							sc.write(buffer);
 							
+							break;
 						}
 						else if (getdata.equals("logOut") == true)
 						{
@@ -460,8 +546,8 @@ class ThreadBySubclass extends Thread
 									//data = "Nobody!!";
 								//}
 							//}
-							//pos.set(0, "Wplayer1");
-							//pos.set(1, "0 0");
+							pos.set(0, "Wplayer1");
+							pos.set(1, "0 0");
 							ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
 							sc.write(buffer);
 							
@@ -491,14 +577,15 @@ public class Server
 		Queue<String> queue = new LinkedList<>();
 		Queue<String> proQueue = new LinkedList<>();
 		
-		allPort[0] = 8889;		//遊戲中傳遞(黑)
-    	allPort[1] = 8888;		//遊玩中傳遞(白)
+		allPort[0] = 8889;		//遊戲中傳遞(放置棋子)
+    	allPort[1] = 8888;		//遊玩中傳遞(等待對方)
     	allPort[2] = 8887;		//註冊帳號
     	allPort[3] = 8886;		//登入
 
     	pos.add(0, "Wplayer1");
     	pos.add(1, "0 0");
     	pos.add(2, "no");
+    	pos.add(3, "noWait");
     	people.add(0, "player1");
     	people.add(1, "player2");
     	

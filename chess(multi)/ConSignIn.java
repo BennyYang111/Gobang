@@ -19,7 +19,7 @@ public class ConSignIn extends Main
 	
 	        for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
 	        {
-	            System.out.println("Loop count = " + loopcount);
+	            //System.out.println("Loop count = " + loopcount);
 	            try 
 	            {
 	                Thread.sleep(1000);
@@ -87,7 +87,7 @@ public class ConSignIn extends Main
             // if the socket has connected, sc.finishConnect() will return false
             for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
             {
-                System.out.println("Loop count = " + loopcount);
+                //System.out.println("Loop count = " + loopcount);
                 try 
                 {
                     Thread.sleep(1000);
@@ -106,11 +106,11 @@ public class ConSignIn extends Main
 			ByteBuffer 	b = ByteBuffer.allocate(1000); 
 			int			len = sc.read(b);
 			
-			while(len == 0 && waitTime <= 5)		//&& waitTime <= 5
+			while(len == 0 && waitTime <= 4)
 			{
             	try 
             	{
-                	Thread.sleep(2000);
+                	Thread.sleep(1000);
             	}
             	catch (InterruptedException e) 
             	{
@@ -155,6 +155,69 @@ public class ConSignIn extends Main
 			e.printStackTrace();
 		}
 		
+        try
+		{
+			SocketChannel sc = SocketChannel.open();
+			sc.configureBlocking(false);
+			sc.connect(new InetSocketAddress("127.0.0.1", 8886));
+
+            // if the socket has connected, sc.finishConnect() will return false
+            for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
+            {
+                //System.out.println("Loop count = " + loopcount);
+                try 
+                {
+                    Thread.sleep(1000);
+                } 
+                catch (InterruptedException e) 
+                {
+                    start = 0;
+                }
+            }
+				
+			String wait = "lobbyWaitTimeOut";
+			
+			ByteBuffer buffer = ByteBuffer.wrap(wait.getBytes());
+			sc.write(buffer);
+
+			ByteBuffer 	b = ByteBuffer.allocate(1000); 
+			int			len = sc.read(b);
+			
+			/*while(len == 0)
+			{
+            	try 
+            	{
+                	Thread.sleep(1000);
+            	}
+            	catch (InterruptedException e) 
+            	{
+                	System.err.println(e);
+            	}
+				
+				//System.out.println("等待其他玩家進入...");
+
+				len = sc.read(b);
+				//System.out.println("len: " + len);
+				//System.out.println("waitTime: " + waitTime);
+				if (len > 10)
+				{
+					len = 0;
+				}
+				
+				if (len == 0)
+				{
+					buffer = ByteBuffer.wrap(wait.getBytes());
+					sc.write(buffer);
+				}
+			}*/
+			
+			sc.close();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+        
 		return start;
 	}
 	
@@ -174,7 +237,7 @@ public class ConSignIn extends Main
 	
 	        for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
 	        {
-	            System.out.println("Loop count = " + loopcount);
+	            //System.out.println("Loop count = " + loopcount);
 	            try 
 	            {
 	                Thread.sleep(1000);
@@ -233,7 +296,7 @@ public class ConSignIn extends Main
 	
 	        for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
 	        {
-	            System.out.println("Loop count = " + loopcount);
+	            //System.out.println("Loop count = " + loopcount);
 	            try 
 	            {
 	                Thread.sleep(1000);
@@ -293,7 +356,7 @@ public class ConSignIn extends Main
 	
 	        for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
 	        {
-	            System.out.println("Loop count = " + loopcount);
+	            //System.out.println("Loop count = " + loopcount);
 	            try 
 	            {
 	                Thread.sleep(1000);
@@ -315,7 +378,7 @@ public class ConSignIn extends Main
 			//{
 				try 
 				{
-					Thread.sleep(1000);
+					Thread.sleep(500);
 				}
 				catch (InterruptedException er) 
 				{

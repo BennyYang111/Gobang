@@ -28,6 +28,151 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 
+class ThreadClassConPlay extends Thread
+{
+	ConPlay conPlay = new ConPlay();
+	PlayFrame frame = new PlayFrame();
+	Main main = new Main();
+	
+	int waitTime = 0;
+	
+	/*public ThreadClass()
+	{
+		
+	}*/
+	public void run()
+	{
+		try
+		{
+			try
+			{
+				SocketChannel sc = SocketChannel.open();
+				sc.configureBlocking(false);
+				sc.connect(new InetSocketAddress("127.0.0.1", 8889));
+				
+		        for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
+		        {
+		            //System.out.println("Loop count = " + loopcount);
+		            try 
+		            {
+		                Thread.sleep(1000);
+		            }
+		            catch (InterruptedException e) 
+		            {
+		                System.err.println(e);
+		            }
+		        }
+				
+		        String data = "waitStart";
+		        
+				ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+				sc.write(buffer);
+				
+				ByteBuffer 	b = ByteBuffer.allocate(1000); 
+				int			len = sc.read(b);
+				
+				while(len == 0 && waitTime <= 4)
+				{
+					try 
+					{
+						Thread.sleep(1000);
+					} 
+					catch (InterruptedException e) 
+					{
+						System.err.println(e);
+					}
+					
+					waitTime++;
+					len = sc.read(b);
+					String rev = new String(b.array(), 0, len);
+					//System.out.println("rev::: " + rev);
+					if (rev.equals("yes") == true)
+					{
+						//System.out.println("yesyesyesyesyesyesyesyes");
+						conPlay.doSomething(1);
+						//break;
+					}
+					else if (rev.equals("logOut") == true)
+					{
+						//System.out.println("logOutlogOutlogOutlogOutlogOut");
+						conPlay.doSomething(2);
+						//break;
+					}
+					
+					if (len == 0)
+					{
+						buffer = ByteBuffer.wrap(data.getBytes());
+						sc.write(buffer);
+					}
+				}
+				
+				if ((new String(b.array(), 0, len)).equals(""))
+				{
+					//System.out.println("O_____________O");
+					main.restartTimeOut = 1;
+					/*frame.timeOutMsg.setText("連線逾時...");
+					frame.playPanel.add(frame.timeOutMsg);
+					frame.playLayeredPane.add(frame.timeOutMsg, JLayeredPane.MODAL_LAYER);*/
+				}
+				
+				//System.out.println("Receive message : "	+ new String(b.array(), 0, len));
+				
+				sc.close();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		catch(Exception e){ }
+	}
+}
+
+class ThreadClassTimeOut extends Thread
+{
+	public ThreadClassTimeOut()
+	{
+		
+	}
+	public void run()
+	{
+		try
+		{
+			try
+			{
+				SocketChannel sc = SocketChannel.open();
+				sc.configureBlocking(false);
+				sc.connect(new InetSocketAddress("127.0.0.1", 8887));
+				
+		        for (int loopcount = 0 ; !sc.finishConnect() ; loopcount++)
+		        {
+		            //System.out.println("Loop count = " + loopcount);
+		            try 
+		            {
+		                Thread.sleep(1000);
+		            }
+		            catch (InterruptedException e) 
+		            {
+		                System.err.println(e);
+		            }
+		        }
+				
+		        String data = "timeOut";
+		        
+				ByteBuffer buffer = ByteBuffer.wrap(data.getBytes());
+				sc.write(buffer);
+				
+				sc.close();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		catch(Exception e){ }
+	}
+}
+
 class ThreadClass extends Thread
 {
 	ConPlay conPlay = new ConPlay();
@@ -79,6 +224,7 @@ public class Main
 	static int[] position = new int[5];		//0, 1記視窗座標，2, 3記棋盤座標
 	static int[][] win = new int[16][16];
 	static String playName = "";
+	static int restartTimeOut = 0;
 	static int player = -1;
 	static int start = 1;
 	static int put = 0;
@@ -109,6 +255,7 @@ public class Main
 				else 
 				{
 					lobby.wait.setText("配對逾時...");
+                    player = -1;
 				}
 			}
 			else if (players == 2)
@@ -120,6 +267,12 @@ public class Main
 		else if (in == 1 && log == 0)
 		{
 			in = 0;
+			player = -1;
+			playName = "";
+			start = 1;
+			winner = 0;
+			stepBack = 0;
+			restart = 0;
 		}
 		//System.out.println("in = " + in);
 		//System.out.println("player = " + player);
@@ -175,7 +328,7 @@ public class Main
 					
 					try
 					{
-						Thread.sleep(3000);
+						Thread.sleep(1500);
 					}
 					catch(InterruptedException e) { }
 					
@@ -243,7 +396,14 @@ public class Main
 		signIn.setframeSignIn();
 		gobangLayeredPane = signIn.signInLayeredPane;
 		gobangFrame.setLayeredPane(gobangLayeredPane);
+		
+		/*frame.setFrame();
+		gobangLayeredPane = frame.playLayeredPane;
+		gobangFrame.setLayeredPane(gobangLayeredPane);*/
+		
 		gobangFrame.setVisible(true);		//讓視窗可見
+		
+		//msg.Info();
 		
 		signIn.noSignUp.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) 
@@ -265,6 +425,7 @@ public class Main
 		signIn.send.addActionListener(new ActionListener(){ 
 			public void actionPerformed(ActionEvent e) 
 			{
+				lobby.wait.setText("按下按鈕開始配對!");
 				String account = signIn.account.getText();
 				String password = new String(signIn.password.getPassword());
 				
@@ -322,7 +483,7 @@ public class Main
 		
 		lobby.waitButton.addActionListener(new ActionListener(){ 
 			public void actionPerformed(ActionEvent e) 
-			{
+			{				
 				int checkIn = logout(1);
 				
 				if (checkIn == 1)
@@ -422,21 +583,43 @@ public class Main
 		msg.yes.addActionListener(new ActionListener(){ 
 			public void actionPerformed(ActionEvent e) 
 			{
-				int logout = -1;
+				//frame.logout.doClick();
+				msg.msg.dispose();
+				frame.logout.doClick();
+				
+				/*int logout = -1;
 				//System.out.println("zero Or one == " + player);
 				if (player == 0)
 				{
 					logout = ConPlay.restart();
-					/*try
-					{
-						Thread.sleep(3000);
-					}
-					catch(InterruptedException eer) { }*/
+					//try
+					//{
+						//Thread.sleep(3000);
+					//}
+					//catch(InterruptedException eer) { }
 					msg.msg.dispose();
 				}
 				else if (player == 1)
 				{
 					//System.out.println("plplplplplapalpa === " + player);
+					msg.msg.dispose();
+					
+					try
+					{
+						//while(true){
+							ThreadClassConPlay thread1 = new ThreadClassConPlay();
+							
+							try
+							{
+								Thread.sleep(2000);
+							}
+							catch(InterruptedException er) { }
+							
+							thread1.start();
+						//}
+					}
+					catch(Exception er){ }
+					
 					local.clean();
 					Start();
 				}
@@ -451,21 +634,125 @@ public class Main
 				else if (logout == 1)
 				{
 					frame.logout.doClick();
-				}
+				}*/
 			}
 		});
 		
-		msg.no.addActionListener(new ActionListener(){ 
+		/*msg.no.addActionListener(new ActionListener(){ 
 			public void actionPerformed(ActionEvent e) 
 			{
 				msg.msg.dispose();
 			}
-		});
+		});*/
 		
 		frame.clean.addActionListener(new ActionListener(){ 
 			public void actionPerformed(ActionEvent e) 
 			{
-				msg.Info();
+				//msg.Info();
+				
+				int logout = -1;
+				//System.out.println("zero Or one == " + player);
+				if (player == 0)
+				{
+					logout = ConPlay.restart();
+					/*try
+					{
+						Thread.sleep(3000);
+					}
+					catch(InterruptedException eer) { }*/
+					//msg.msg.dispose();
+				}
+				else if (player == 1)
+				{
+					//System.out.println("plplplplplapalpa === " + player);
+					//msg.msg.dispose();
+					
+					try
+					{
+						//while(true){
+							ThreadClassConPlay thread1 = new ThreadClassConPlay();
+							
+							try
+							{
+								Thread.sleep(2000);
+							}
+							catch(InterruptedException er) { }
+							
+							thread1.start();
+							
+							try
+							{
+								thread1.join();
+							}
+							catch(InterruptedException er){ }
+						//}
+					}
+					catch(Exception er){ }
+					
+					//local.clean();
+					//Start();
+				}
+				
+				//msg.msg.dispose();
+				if (restartTimeOut == 0)
+				{
+					frame.timeOutMsg.setText("");
+				}
+				else if (restartTimeOut == 1)
+				{
+					frame.timeOutMsg.setText("對方無回應...");
+					//frame.playPanel.add(frame.timeOutMsg);
+					//frame.playLayeredPane.add(frame.timeOutMsg, JLayeredPane.MODAL_LAYER);
+					restartTimeOut = 0;
+					
+					try
+					{
+						//while(true){
+							ThreadClassTimeOut thread1 = new ThreadClassTimeOut();
+							
+							try
+							{
+								Thread.sleep(2000);
+							}
+							catch(InterruptedException er) { }
+							
+							thread1.start();
+						//}
+					}
+					catch(Exception er){ }
+				}
+				
+				if (logout == 0)
+				{
+					frame.timeOutMsg.setText("");
+					local.clean();
+					Start();
+				}
+				else if (logout == 2)
+				{
+					//System.out.println("0.0~~~~~~~");
+					frame.timeOutMsg.setText("對方無回應...");
+					try
+					{
+						//while(true){
+							ThreadClassTimeOut thread1 = new ThreadClassTimeOut();
+							
+							try
+							{
+								Thread.sleep(2000);
+							}
+							catch(InterruptedException er) { }
+							
+							thread1.start();
+						//}
+					}
+					catch(Exception er){ }
+				}
+				/*else if (logout == 1)
+				{
+					msg.Info();
+					//frame.logout.doClick();
+				}*/
 			}
 		});
 		
@@ -592,7 +879,7 @@ public class Main
 								
 								try
 								{
-									Thread.sleep(1000);
+									Thread.sleep(500);
 								}
 								catch(InterruptedException er) { }
 								

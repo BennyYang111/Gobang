@@ -201,7 +201,7 @@ class ThreadClass extends Thread
 }
 
 public class Main
-{	
+{
 	static String iconPath = Main.class.getClassLoader().getResource("./Image/icon.png").getPath();
 	static String blackSinglePath = Main.class.getClassLoader().getResource("./Image/black_single.png").getPath();
 	static String whiteSinglePath = Main.class.getClassLoader().getResource("./Image/white_single.png").getPath();

@@ -344,6 +344,7 @@ public class ConPlay extends Main
 					{
 						//System.out.println("yesyesyesyesyesyesyesyes");
 						doSomething(1);
+                        Main.frame.timeOutMsg.setText("");
 						//break;
 					}
 					else if (rev.equals("logOut") == true)

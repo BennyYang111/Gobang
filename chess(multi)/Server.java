@@ -79,7 +79,8 @@ class ThreadBySubclass extends Thread
 				if(len > 0)
 				{
 					//System.out.println("port: " + localPort);
-					System.out.println("msg: " + new String(b.array(), 0, len));
+					if (player.equals("SELECT") == true)System.out.println("msg: " + "SignIn");
+                    else if (player.equals("SELECT") != true)System.out.println("msg: " + new String(b.array(), 0, len));
 					//System.out.println("size: " + queue.size());
 					//System.out.println("player: " + player);
 					
@@ -581,6 +582,7 @@ public class Server
     	allPort[1] = 8888;		//遊玩中傳遞(等待對方)
     	allPort[2] = 8887;		//註冊帳號
     	allPort[3] = 8886;		//登入
+        allPort[4] = 8885;		//連線逾時和其他
 
     	pos.add(0, "Wplayer1");
     	pos.add(1, "0 0");
@@ -589,7 +591,7 @@ public class Server
     	people.add(0, "player1");
     	people.add(1, "player2");
     	
-		for (int i = 0; i < 4 ; i++)
+		for (int i = 0; i < 5 ; i++)
 		{
 			int port = allPort[i];
 

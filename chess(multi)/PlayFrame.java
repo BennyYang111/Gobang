@@ -35,7 +35,7 @@ public class PlayFrame
 	JLabel name = new JLabel("玩家:");
 	JLabel playerName = new JLabel();
 	JLabel chess = new JLabel();
-	JButton clean = new JButton("再來一把");
+	JButton clean = new JButton("重新遊玩");
 	//JButton back = new JButton("悔棋");
 	JButton logout = new JButton("←");
 	
